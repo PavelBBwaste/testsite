@@ -1,24 +1,115 @@
 <!DOCTYPE html>
 <html lang="ru">
+
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Тамагочи</title>
     <style>
-        /* Ваши стили */
+        /* Основные стили для милой темы */
+        
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #ffebf0;
+            color: #555;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        
+        .game {
+            position: relative;
+            text-align: center;
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            width: 90%;
+            max-width: 400px;
+            height: 90vh;
+            /* Вытянутый контейнер */
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            overflow: hidden;
+        }
+        
+        h2 {
+            font-size: 24px;
+            color: #ff6f91;
+            margin-top: 0;
+        }
+        
+        .status {
+            display: flex;
+            justify-content: space-around;
+            font-size: 16px;
+            margin-bottom: 20px;
+        }
+        
+        .status p {
+            background: #fff0f6;
+            padding: 8px;
+            border-radius: 10px;
+            margin: 0;
+            font-weight: bold;
+            color: #ff6f91;
+        }
+        
+        .character {
+            font-size: 100px;
+            margin: 20px 0;
+        }
+        /* Кнопки управления, расположены в правом нижнем углу */
+        
+        .actions {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .actions button {
+            background-color: #ff6f91;
+            color: white;
+            border: none;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 24px;
+            transition: background-color 0.3s;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .actions button:hover {
+            background-color: #ff85a1;
+        }
     </style>
 </head>
+
 <body>
-    <div class="game">
+    <div class="game" onclick="earnCoins()">
+        <!-- Добавлено событие onClick -->
         <h2>Ваш питомец</h2>
         <div class="status">
             <p>Сытость: <span id="hunger">100</span></p>
             <p>Счастье: <span id="happiness">100</span></p>
             <p>Монетки: <span id="coins">0</span></p>
         </div>
+        <!-- Персонаж посередине -->
+        <div class="character">🐱</div>
+        <!-- Кнопки "плей" и "магазин" в правом нижнем углу -->
         <div class="actions">
-            <button onclick="feed()">Покормить</button>
-            <button onclick="play()">Поиграть</button>
-            <button onclick="earnCoins()">Заработать монетки</button>
+            <button onclick="play()">▶️</button>
+            <button onclick="openShop()">🛒</button>
         </div>
     </div>
 
@@ -36,34 +127,33 @@
 
         function sendData() {
             fetch('/webapp/data', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    user_id: Telegram.WebApp.initDataUnsafe.user.id,
-                    hunger: hunger,
-                    happiness: happiness,
-                    coins: coins
-                })
-            }).then(response => response.json())
-              .then(data => console.log(data));
-        }
-
-        function feed() {
-            hunger = Math.min(hunger + 10, 100);
-            sendData();
-            updateStatus();
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        user_id: Telegram.WebApp.initDataUnsafe.user.id,
+                        hunger: hunger,
+                        happiness: happiness,
+                        coins: coins
+                    })
+                }).then(response => response.json())
+                .then(data => console.log(data));
         }
 
         function play() {
-            happiness = Math.min(happiness + 10, 100);
+            happiness = Math.min(happiness + 10, 100); // Увеличиваем счастье
             sendData();
             updateStatus();
         }
 
+        function openShop() {
+            alert("Открыт магазин!"); // Можно заменить на функцию открытия магазина
+        }
+
+        // Функция увеличения монет
         function earnCoins() {
-            coins += 10;
+            coins += 1;
             sendData();
             updateStatus();
         }
@@ -71,4 +161,5 @@
         Telegram.WebApp.ready();
     </script>
 </body>
+
 </html>
