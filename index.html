@@ -59,12 +59,14 @@
             gap: 5px;
         }
         
-        .character img {
+        .character {
+            font-size: 100px;
             width: 150px;
-            /* Размер изображения персонажа */
-            height: auto;
+            /* Размер изображения */
+            height: 150px;
+            object-fit: cover;
         }
-        /* Увеличенные кнопки управления в правом нижнем углу */
+        /* Кнопки управления в правом нижнем углу */
         
         .actions {
             position: absolute;
@@ -72,19 +74,17 @@
             right: 10px;
             display: flex;
             flex-direction: column;
-            gap: 15px;
+            gap: 10px;
         }
         
         .actions button {
             background-color: #fff0f6;
             color: #ff6f91;
             border: none;
-            padding: 15px 20px;
-            /* Увеличенные отступы */
+            padding: 5px 10px;
             border-radius: 10px;
             cursor: pointer;
-            font-size: 22px;
-            /* Увеличенный размер шрифта */
+            font-size: 18px;
             display: flex;
             align-items: center;
             gap: 5px;
@@ -100,21 +100,21 @@
 
 <body>
     <div class="game" onclick="earnCoins()">
-        <!-- Добавлено событие onClick -->
+        <!-- Добавлено событие onClick для увеличения монет -->
         <!-- Статус-бар с эмодзи в правом верхнем углу -->
         <div class="status">
             <p>🍗 <span id="hunger">100</span></p>
             <p>😊 <span id="happiness">100</span></p>
             <p>💰 <span id="coins">0</span></p>
         </div>
-        <!-- Изображение кота по центру -->
+        <!-- Изображение персонажа (pers.png) по центру -->
         <div class="character">
-            <img src="pers.png" alt="Персонаж" />
+            <img src="pers.png" alt="Персонаж" width="150" height="150" />
         </div>
-        <!-- Увеличенные кнопки "плей" и "магазин" в правом нижнем углу -->
+        <!-- Кнопки "плей" и "магазин" в правом нижнем углу -->
         <div class="actions">
-            <button onclick="play()">▶️ Плей</button>
-            <button onclick="openShop()">🛒 Магазин</button>
+            <button onclick="play()">▶️</button>
+            <button onclick="openShop()">🛒</button>
         </div>
     </div>
 
@@ -124,12 +124,14 @@
         let happiness = 100;
         let coins = 0;
 
+        // Функция обновления статуса на экране
         function updateStatus() {
             document.getElementById("hunger").innerText = hunger;
             document.getElementById("happiness").innerText = happiness;
             document.getElementById("coins").innerText = coins;
         }
 
+        // Отправка данных на сервер
         function sendData() {
             fetch('/webapp/data', {
                     method: 'POST',
@@ -137,32 +139,62 @@
                         'Content-Type': 'application/json'
                     },
                     body: JSON.stringify({
-                        user_id: Telegram.WebApp.initDataUnsafe.user.id,
+                        user_id: Telegram.WebApp.initDataUnsafe.user.id, // Получаем user_id из Telegram Web App
                         hunger: hunger,
                         happiness: happiness,
                         coins: coins
                     })
                 }).then(response => response.json())
-                .then(data => console.log(data));
+                .then(data => {
+                    console.log(data); // Ответ от сервера (можно использовать для отладки)
+                });
         }
 
+        // Получение данных с сервера (включая количество монет)
+        function fetchData() {
+            fetch('/webapp/data')
+                .then(response => response.json())
+                .then(data => {
+                    hunger = data.hunger || 100;
+                    happiness = data.happiness || 100;
+                    coins = data.coins || 0;
+                    updateStatus(); // Обновляем статус с полученными данными
+                });
+        }
+
+        // Функция для покорма питомца
+        function feed() {
+            hunger = Math.min(hunger + 10, 100);
+            sendData();
+            updateStatus();
+        }
+
+        // Функция для игры с питомцем
         function play() {
-            happiness = Math.min(happiness + 10, 100); // Увеличиваем счастье
+            happiness = Math.min(happiness + 10, 100);
             sendData();
             updateStatus();
         }
 
-        function openShop() {
-            alert("Открыт магазин!"); // Можно заменить на функцию открытия магазина
-        }
-
-        // Функция увеличения монет
+        // Функция для увеличения монет
         function earnCoins() {
-            coins += 1;
-            sendData();
-            updateStatus();
+            coins += 1; // Увеличиваем монеты на 1
+            sendData(); // Отправляем обновленные данные на сервер
+            updateStatus(); // Обновляем статус на экране
         }
 
-        Telegram.WebApp.ready();
+        // Открытие магазина
+        function openShop() {
+            alert("Открыт магазин!"); // Здесь можно добавить реальную логику магазина
+        }
+
+        // Когда страница загружается, подтягиваем текущие данные
+        window.onload = function() {
+            fetchData();
+        }
+
+        Telegram.WebApp.ready(); // Готовность Web App
     </script>
 </body>
+
+</html>
