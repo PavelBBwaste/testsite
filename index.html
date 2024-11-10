@@ -59,8 +59,10 @@
             gap: 5px;
         }
         
-        .character {
-            font-size: 100px;
+        .character img {
+            width: 150px;
+            /* Размер изображения персонажа */
+            height: auto;
         }
         /* Увеличенные кнопки управления в правом нижнем углу */
         
@@ -105,12 +107,14 @@
             <p>😊 <span id="happiness">100</span></p>
             <p>💰 <span id="coins">0</span></p>
         </div>
-        <!-- Кот по центру -->
-        <div class="character">🐱</div>
+        <!-- Изображение кота по центру -->
+        <div class="character">
+            <img src="pers.png" alt="Персонаж" />
+        </div>
         <!-- Увеличенные кнопки "плей" и "магазин" в правом нижнем углу -->
         <div class="actions">
-            <button onclick="play()">▶️</button>
-            <button onclick="openShop()">🛒</button>
+            <button onclick="play()">▶️ Плей</button>
+            <button onclick="openShop()">🛒 Магазин</button>
         </div>
     </div>
 
