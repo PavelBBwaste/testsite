@@ -7,7 +7,6 @@
     <title>Тамагочи</title>
     <style>
         /* Основные стили для милой темы */
-        
         body {
             font-family: Arial, sans-serif;
             background-color: #ffebf0;
@@ -35,7 +34,6 @@
             align-items: center;
             overflow: hidden;
         }
-        /* Вертикальное расположение индикаторов статуса */
         
         .status {
             position: absolute;
@@ -62,11 +60,9 @@
         .character {
             font-size: 100px;
             width: 150px;
-            /* Размер изображения */
             height: 150px;
             object-fit: cover;
         }
-        /* Кнопки управления в правом нижнем углу */
         
         .actions {
             position: absolute;
@@ -99,19 +95,15 @@
 </head>
 
 <body>
-    <div class="game" onclick="earnCoins()">
-        <!-- Добавлено событие onClick для увеличения монет -->
-        <!-- Статус-бар с эмодзи в правом верхнем углу -->
+    <div class="game">
         <div class="status">
             <p>🍗 <span id="hunger">100</span></p>
             <p>😊 <span id="happiness">100</span></p>
             <p>💰 <span id="coins">0</span></p>
         </div>
-        <!-- Изображение персонажа (pers.png) по центру -->
         <div class="character">
             <img src="pers.png" alt="Персонаж" width="150" height="150" />
         </div>
-        <!-- Кнопки "плей" и "магазин" в правом нижнем углу -->
         <div class="actions">
             <button onclick="play()">▶️</button>
             <button onclick="openShop()">🛒</button>
@@ -134,61 +126,42 @@
         // Отправка данных на сервер
         function sendData() {
             fetch('/webapp/data', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        user_id: Telegram.WebApp.initDataUnsafe.user.id, // Получаем user_id из Telegram Web App
-                        hunger: hunger,
-                        happiness: happiness,
-                        coins: coins
-                    })
-                }).then(response => response.json())
-                .then(data => {
-                    console.log(data); // Ответ от сервера (можно использовать для отладки)
-                });
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    user_id: Telegram.WebApp.initDataUnsafe.user.id,
+                    hunger: hunger,
+                    happiness: happiness,
+                    coins: coins
+                })
+            }).then(response => response.json())
+            .then(data => {
+                console.log(data);
+            });
         }
 
-        // Получение данных с сервера (включая количество монет)
+        // Получение данных с сервера
         function fetchData() {
-            fetch('/webapp/data')
+            const userID = Telegram.WebApp.initDataUnsafe.user.id;
+            fetch(`/webapp/data?user_id=${userID}`)
                 .then(response => response.json())
                 .then(data => {
                     hunger = data.hunger || 100;
                     happiness = data.happiness || 100;
                     coins = data.coins || 0;
-                    updateStatus(); // Обновляем статус с полученными данными
+                    updateStatus();
                 });
-        }
-
-        // Функция для покорма питомца
-        function feed() {
-            hunger = Math.min(hunger + 10, 100);
-            sendData();
-            updateStatus();
-        }
-
-        // Функция для игры с питомцем
-        function play() {
-            happiness = Math.min(happiness + 10, 100);
-            sendData();
-            updateStatus();
         }
 
         // Функция для увеличения монет
         function earnCoins() {
-            coins += 1; // Увеличиваем монеты на 1
-            sendData(); // Отправляем обновленные данные на сервер
-            updateStatus(); // Обновляем статус на экране
+            coins += 1;
+            sendData();
+            updateStatus();
         }
 
-        // Открытие магазина
-        function openShop() {
-            alert("Открыт магазин!"); // Здесь можно добавить реальную логику магазина
-        }
-
-        // Когда страница загружается, подтягиваем текущие данные
         window.onload = function() {
             fetchData();
         }
