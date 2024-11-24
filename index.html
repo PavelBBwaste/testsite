@@ -33,6 +33,7 @@
             justify-content: center;
             align-items: center;
             overflow: hidden;
+            cursor: pointer;
         }
         
         .status {
@@ -95,7 +96,7 @@
 </head>
 
 <body>
-    <div class="game">
+    <div class="game" onclick="earnCoins()">
         <div class="status">
             <p>🍗 <span id="hunger">100</span></p>
             <p>😊 <span id="happiness">100</span></p>
@@ -157,9 +158,21 @@
 
         // Функция для увеличения монет
         function earnCoins() {
-            coins += 1;
+            coins += 1; // Увеличиваем монеты на 1
+            sendData(); // Отправляем обновленные данные на сервер
+            updateStatus(); // Обновляем статус на экране
+        }
+
+        // Функция для игры с питомцем
+        function play() {
+            happiness = Math.min(happiness + 10, 100);
             sendData();
             updateStatus();
+        }
+
+        // Открытие магазина
+        function openShop() {
+            alert("Открыт магазин!");
         }
 
         window.onload = function() {
