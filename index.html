@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Тамагочи</title>
     <style>
+        /* Основные стили для милой темы */
         body {
             font-family: Arial, sans-serif;
             background-color: #ffebf0;
@@ -16,57 +17,155 @@
             margin: 0;
         }
         .game {
-            background-color: #fff;
+            position: relative;
+            text-align: center;
+            background-color: #ffffff;
             padding: 20px;
             border-radius: 15px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-            text-align: center;
+            width: 90%;
+            max-width: 400px;
+            height: 90vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
         }
         .status {
-            margin-bottom: 10px;
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            font-size: 16px;
+            font-weight: bold;
+        }
+        .status p {
+            background: #fff0f6;
+            padding: 5px 10px;
+            border-radius: 10px;
+            margin: 0;
+            color: #ff6f91;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .character {
+            font-size: 100px;
+            width: 150px;
+            height: 150px;
+            object-fit: cover;
+        }
+        .actions {
+            position: absolute;
+            bottom: 20px;
+            right: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .actions button {
+            background-color: #fff0f6;
+            color: #ff6f91;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-weight: bold;
+            transition: background-color 0.3s;
+        }
+        .actions button:hover {
+            background-color: #ff85a1;
         }
     </style>
 </head>
 <body>
-    <div class="game">
+    <div class="game" onclick="earnCoins()">
         <div class="status">
-            <p>🍗 Голод: <span id="hunger">100</span></p>
-            <p>😊 Счастье: <span id="happiness">100</span></p>
-            <p>💰 Монеты: <span id="coins">0</span></p>
+            <p>🍗 <span id="hunger">100</span></p>
+            <p>😊 <span id="happiness">100</span></p>
+            <p>💰 <span id="coins">0</span></p>
         </div>
-        <button onclick="earnCoins()">Нажать для монет</button>
+        <div class="character">
+            <img src="pers.png" alt="Персонаж" width="150" height="150">
+        </div>
+        <div class="actions">
+            <button onclick="play()">▶️</button>
+            <button onclick="openShop()">🛒</button>
+        </div>
     </div>
 
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script>
-        let hunger = 100, happiness = 100, coins = 0;
+        // URL сервера
+        const SERVER_URL = "http://109.68.113.123:8080/webapp/data";
 
+        let hunger = 100;
+        let happiness = 100;
+        let coins = 0;
+
+        // Обновление статуса на экране
         function updateStatus() {
             document.getElementById("hunger").innerText = hunger;
             document.getElementById("happiness").innerText = happiness;
             document.getElementById("coins").innerText = coins;
         }
 
+        // Отправка данных на сервер
+        function sendData() {
+            fetch(SERVER_URL, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    user_id: Telegram.WebApp.initDataUnsafe?.user?.id || 0,
+                    hunger: hunger,
+                    happiness: happiness,
+                    coins: coins,
+                }),
+            })
+            .then(response => {
+                if (!response.ok) {
+                    console.error("Ошибка отправки данных на сервер");
+                } else {
+                    console.log("Данные успешно отправлены");
+                }
+            })
+            .catch(err => console.error("Ошибка: ", err));
+        }
+
+        // Увеличение монет при нажатии
         function earnCoins() {
-            coins += 1;
+            coins++;
             sendData();
             updateStatus();
         }
 
-        function sendData() {
-            fetch('http://localhost:8080/webapp/data', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    user_id: Telegram.WebApp.initDataUnsafe.user.id,
-                    hunger: hunger,
-                    happiness: happiness,
-                    coins: coins
-                })
-            }).then(response => response.json())
-              .then(data => console.log(data))
-              .catch(err => console.error('Ошибка:', err));
+        // Игра с питомцем
+        function play() {
+            happiness = Math.min(happiness + 10, 100);
+            sendData();
+            updateStatus();
         }
+
+        // Открытие магазина
+        function openShop() {
+            alert("Открыт магазин!");
+        }
+
+        // Загрузка данных при старте
+        window.onload = function() {
+            updateStatus();
+        };
+
+        Telegram.WebApp.ready();
     </script>
 </body>
 </html>
